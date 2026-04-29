@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './pages/Home';
 import List from './pages/List';
 import AddItem from './pages/AddItem';
-import EditItem from './pages/EditiStem';
+import EditItem from './pages/Edititem';
 import Login from './pages/login';
 import Register from './pages/Register';
 
