@@ -3,7 +3,7 @@ import Home from './pages/Home';
 import List from './pages/List';
 import AddItem from './pages/AddItem';
 import EditItem from './pages/EditItem';
-import Login from './pages/Login';
+import Login from './pages/login';
 import Register from './pages/Register';
 
 function App() {
