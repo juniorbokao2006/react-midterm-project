@@ -39,7 +39,7 @@ secure user registration, login, and real-time task management.
 - **Error Handling:** Dynamic alerts for failed logins or server timeouts.
 
 ## Live URL
-**Frontend App:** [Insert your frontend Render link here]
+**Frontend App:** https://react-midterm-project-82tv.onrender.com
 
 ## Technical Presentation Notes
 - **Decoupled Architecture:** The frontend is entirely independent of the backend, communicating only through a RESTful API.
