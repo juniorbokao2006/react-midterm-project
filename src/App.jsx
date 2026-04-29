@@ -6,10 +6,13 @@ import EditItem from './pages/EditItem';
 import Login from './pages/login';
 import Register from './pages/Register';
 
-function App() {
-  // A simple check to see if the user is logged in
-  const isAuthenticated = !!localStorage.getItem('token');
+// A small helper component to protect routes properly
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  return token ? children : <Navigate to="/login" />;
+};
 
+function App() {
   return (
     <Router>
       <Routes>
@@ -17,23 +20,32 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected Routes: Redirect to login if not authenticated */}
+        {/* Protected Routes */}
+        {/* We map BOTH "/" and "/home" to the Home component */}
         <Route 
           path="/" 
-          element={isAuthenticated ? <Home /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><Home /></ProtectedRoute>} 
         />
         <Route 
+          path="/home" 
+          element={<ProtectedRoute><Home /></ProtectedRoute>} 
+        />
+        
+        <Route 
           path="/tasks" 
-          element={isAuthenticated ? <List /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><List /></ProtectedRoute>} 
         />
         <Route 
           path="/add" 
-          element={isAuthenticated ? <AddItem /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><AddItem /></ProtectedRoute>} 
         />
         <Route 
           path="/edit/:id" 
-          element={isAuthenticated ? <EditItem /> : <Navigate to="/login" />} 
+          element={<ProtectedRoute><EditItem /></ProtectedRoute>} 
         />
+
+        {/* Catch-all: If user goes to a random URL, send them home */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );
