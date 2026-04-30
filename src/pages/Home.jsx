@@ -7,7 +7,7 @@ const Home = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  // 1. Fetch real tasks from your backend
+  // Fetching data from your Aiven MySQL via Render Backend
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -17,10 +17,16 @@ const Home = () => {
         setTasks(res.data);
       } catch (err) {
         console.error("Error fetching tasks:", err);
+        // If token is expired or invalid, send back to login
+        if (err.response?.status === 401) navigate('/login');
       }
     };
-    fetchTasks();
-  }, [token]);
+    if (token) {
+      fetchTasks();
+    } else {
+      navigate('/login');
+    }
+  }, [token, navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -29,38 +35,51 @@ const Home = () => {
 
   return (
     <div style={styles.container}>
-      {/* Navigation Bar */}
+      {/* 1. TOP NAVBAR BUTTONS */}
       <nav style={styles.navbar}>
-        <h2 style={styles.logo}>COMMAND YOUR DAY</h2>
+        <h2 style={styles.logo} onClick={() => navigate('/')}>COMMAND YOUR DAY</h2>
         <div style={styles.navLinks}>
-          <Link to="/add" style={styles.navBtn}>+ Add Task</Link>
+          <button onClick={() => navigate('/tasks')} style={styles.textBtn}>My Tasks</button>
+          <button onClick={() => navigate('/add')} style={styles.navBtn}>+ Add Task</button>
           <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* 2. HERO SECTION */}
       <div style={styles.hero}>
-        <h1>Welcome Back</h1>
+        <h1>Dashboard</h1>
         <p>A sophisticated workspace to organize objectives and master your time.</p>
       </div>
 
-      {/* Task List Section */}
+      {/* 3. TASK GRID & ACTION BUTTONS */}
       <div style={styles.taskSection}>
-        <h3>Your Current Objectives</h3>
+        <div style={styles.sectionHeader}>
+          <h3>Active Objectives</h3>
+          <button onClick={() => navigate('/add')} style={styles.secondaryBtn}>New Entry</button>
+        </div>
+
         {tasks.length > 0 ? (
           <div style={styles.taskGrid}>
             {tasks.map(task => (
               <div key={task.id} style={styles.taskCard}>
                 <h4>{task.title}</h4>
-                <p>{task.description}</p>
-                <Link to={`/edit/${task.id}`} style={styles.editLink}>Edit</Link>
+                <p style={styles.taskDesc}>{task.description}</p>
+                <div style={styles.cardActions}>
+                  {/* EDIT BUTTON */}
+                  <button 
+                    onClick={() => navigate(`/edit/${task.id}`)} 
+                    style={styles.actionLink}
+                  >
+                    Edit Task
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         ) : (
           <div style={styles.emptyState}>
-            <p>No objectives found. Start by adding your first task!</p>
-            <Link to="/add" style={styles.primaryBtn}>Create Task</Link>
+            <p>Your workspace is currently clear.</p>
+            <button onClick={() => navigate('/add')} style={styles.primaryBtn}>Create Your First Task</button>
           </div>
         )}
       </div>
@@ -69,19 +88,24 @@ const Home = () => {
 };
 
 const styles = {
-  container: { backgroundColor: '#000', color: '#fff', minHeight: '100vh', fontFamily: 'sans-serif' },
-  navbar: { display: 'flex', justifyContent: 'space-between', padding: '20px 50px', borderBottom: '1px solid #222' },
-  logo: { fontSize: '1.2rem', letterSpacing: '2px' },
-  navLinks: { display: 'flex', gap: '20px', alignItems: 'center' },
-  navBtn: { color: '#fff', textDecoration: 'none', border: '1px solid #fff', padding: '8px 15px', borderRadius: '4px' },
-  logoutBtn: { background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer' },
-  hero: { textAlign: 'center', padding: '100px 20px' },
-  taskSection: { maxWidth: '1000px', margin: '0 auto', padding: '20px' },
-  taskGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' },
-  taskCard: { backgroundColor: '#111', padding: '20px', borderRadius: '8px', border: '1px solid #333' },
-  editLink: { color: '#4facfe', textDecoration: 'none', fontSize: '0.9rem' },
-  emptyState: { textAlign: 'center', padding: '40px', border: '1px dashed #444', borderRadius: '8px' },
-  primaryBtn: { display: 'inline-block', marginTop: '10px', backgroundColor: '#fff', color: '#000', padding: '10px 20px', textDecoration: 'none', borderRadius: '4px', fontWeight: 'bold' }
+  container: { backgroundColor: '#000', color: '#fff', minHeight: '100vh', fontFamily: 'Inter, sans-serif' },
+  navbar: { display: 'flex', justifyContent: 'space-between', padding: '20px 50px', borderBottom: '1px solid #222', alignItems: 'center' },
+  logo: { fontSize: '1.1rem', letterSpacing: '3px', cursor: 'pointer', fontWeight: 'bold' },
+  navLinks: { display: 'flex', gap: '25px', alignItems: 'center' },
+  textBtn: { background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '14px' },
+  navBtn: { color: '#fff', background: 'none', border: '1px solid #fff', padding: '8px 18px', borderRadius: '4px', cursor: 'pointer' },
+  logoutBtn: { background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '14px' },
+  hero: { textAlign: 'center', padding: '90px 20px' },
+  taskSection: { maxWidth: '1200px', margin: '0 auto', padding: '20px' },
+  sectionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' },
+  secondaryBtn: { background: 'none', border: '1px solid #333', color: '#666', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' },
+  taskGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' },
+  taskCard: { backgroundColor: '#0a0a0a', padding: '20px', borderRadius: '8px', border: '1px solid #1a1a1a', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' },
+  taskDesc: { color: '#888', fontSize: '0.9rem', margin: '10px 0' },
+  cardActions: { marginTop: '15px', borderTop: '1px solid #1a1a1a', paddingTop: '10px' },
+  actionLink: { background: 'none', border: 'none', color: '#4facfe', cursor: 'pointer', fontSize: '0.85rem', padding: '0' },
+  emptyState: { textAlign: 'center', padding: '80px', border: '1px dashed #222', borderRadius: '12px' },
+  primaryBtn: { marginTop: '20px', backgroundColor: '#fff', color: '#000', border: 'none', padding: '12px 30px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }
 };
 
 export default Home;
